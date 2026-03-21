@@ -110,7 +110,6 @@ async function _getTermInfo({ keepAlive = false } = {}) {
 // cast subcommand — low-latency streaming via scrcpy + ffmpeg
 if (process.argv[2] === 'cast') {
   const term = await _getTermInfo();
-  console.error(`roidy cast: term ${term.width}x${term.height} cell=${term.cellWidth}x${term.cellHeight}`);
 
   const { loadConfig } = await import('../lib/config.js');
   const { loadKeyBindings } = await import('../lib/keys.js');
@@ -180,6 +179,7 @@ if (process.argv[2] === 'cast') {
   setDisplaySize(cols, rows);
   hideCursor();
   clearScreen();
+  process.stdout.write('\x1b[3;3Hroidy cast: waiting for stream...');
   enableMouse();
 
   // Handle stdout errors
@@ -589,6 +589,7 @@ async function main() {
   setDisplaySize(term.cols, term.rows);
   hideCursor();
   clearScreen();
+  process.stdout.write('\x1b[3;3Hroidy: connecting...');
   enableMouse();
 
   // Handle SIGUSR1: another roidy instance changed virtual displays
