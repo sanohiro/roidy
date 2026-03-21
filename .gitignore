@@ -141,4 +141,5 @@ vite.config.ts.timestamp-*
 # Temporary folders
 work
 temp
-tmp.DS_Store
+tmp
+.DS_Store
