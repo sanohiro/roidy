@@ -282,6 +282,16 @@ import { loadConfig } from '../lib/config.js';
 const config = loadConfig();
 const bindings = loadKeyBindings();
 
+// Handle stdout/stderr write errors (e.g. SSH disconnect, terminal close)
+// Without this, EIO errors crash Node.js with an unhandled error
+process.stdout.on('error', (err) => {
+  if (err.code === 'EIO' || err.code === 'EPIPE') {
+    // Terminal is gone — exit gracefully
+    process.exit(0);
+  }
+});
+process.stderr.on('error', () => {});
+
 // Parse CLI arguments
 function parseArgs() {
   const args = { host: config.host, port: config.port, interval: config.interval };
@@ -499,8 +509,13 @@ async function main() {
       resetFrameCache();
       disableDedup(3000);
 
-      // Update Android screen size
-      await adb.setScreenSize(t.width, t.height);
+      if (_useVirtualDisplay && adb.getDisplayId() != null) {
+        // Resize virtual display by updating overlay_display_devices
+        await adb.resizeVirtualDisplay(t.width, t.height, 320);
+      } else {
+        // Mirror mode — resize Android screen
+        await adb.setScreenSize(t.width, t.height);
+      }
       inputHandler.updateSize(t.cellWidth, t.cellHeight, t.width, t.height);
 
       console.error(`roidy: resize ${t.width}x${t.height}`);
