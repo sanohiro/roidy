@@ -1,0 +1,39 @@
+{
+  "name": "@sanohiro/roidy",
+  "version": "0.1.0",
+  "description": "Run a real Android device inside your terminal using Redroid + adb + Kitty graphics protocol",
+  "main": "bin/roidy.js",
+  "bin": {
+    "roidy": "bin/roidy.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "./bin/roidy.js"
+  },
+  "keywords": [
+    "android",
+    "redroid",
+    "adb",
+    "tty",
+    "terminal",
+    "kitty"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanohiro/roidy.git"
+  },
+  "homepage": "https://github.com/sanohiro/roidy",
+  "author": "Hironobu Sano",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@devicefarmer/adbkit": "^3.2.6"
+  }
+}
