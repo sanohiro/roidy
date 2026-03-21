@@ -21,12 +21,14 @@ Terminal-based adb frontend. Android version of casty.
 - `lib/setup.js` — interactive device setup
 - `lib/apps.js` — app resolver (aliases, package lookup)
 - `lib/fdroid.js` — F-Droid API (search, install, update)
+- `lib/cast.js` — scrcpy-server + ffmpeg streaming
 
 ## Commands
 
 ```bash
-./bin/roidy.js              # mirror display 0
+./bin/roidy.js              # mirror display 0 (screencap polling)
 ./bin/roidy.js start <app>  # app in virtual display
+./bin/roidy.js cast [app]   # low-latency streaming (scrcpy + ffmpeg)
 ./bin/roidy.js setup        # device setup
 ./bin/roidy.js search/install/update/uninstall
 ./bin/roidy.js list/info/screenshot/restart

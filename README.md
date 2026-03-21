@@ -56,6 +56,10 @@ roidy
 roidy start kindle
 roidy start settings
 
+# Low-latency streaming via scrcpy + ffmpeg
+roidy cast
+roidy cast kindle
+
 # Specify host and port
 roidy --host 192.168.1.100 --port 5555
 
@@ -68,6 +72,7 @@ roidy --interval 500
 ```bash
 roidy                    # Mirror Android screen (display 0)
 roidy start <app>        # Launch app in virtual display
+roidy cast [app]         # Low-latency streaming (scrcpy + ffmpeg)
 roidy list               # List installed apps
 roidy search <query>     # Search F-Droid for apps
 roidy install <pkg|apk>  # Install from F-Droid or local APK
@@ -96,6 +101,24 @@ roidy start amazon
 
 # Fallback to main display (if virtual display doesn't work)
 roidy start kindle --display 0
+```
+
+### roidy cast
+
+Low-latency streaming via scrcpy-server + ffmpeg. Requires `ffmpeg` installed on the host. scrcpy-server is automatically downloaded on first use.
+
+```bash
+# Mirror display 0
+roidy cast
+
+# Launch app and stream
+roidy cast kindle
+
+# Set max fps
+roidy cast --fps 15
+
+# Force JPEG output (default: PNG)
+roidy cast --format jpeg
 ```
 
 ### roidy setup
