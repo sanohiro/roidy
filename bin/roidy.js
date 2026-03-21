@@ -23,6 +23,7 @@ Usage: roidy [options]
 
 Commands:
   start <app>      Launch an app and connect (e.g. roidy start kindle)
+  cast [app]       Low-latency streaming via scrcpy + ffmpeg
   list             List installed apps
   search <query>   Search F-Droid for apps
   install <pkg>    Install app from F-Droid or local APK
@@ -64,6 +65,195 @@ Keys:   ~/.roidy/keys.json
 
 https://github.com/sanohiro/roidy`);
   process.exit(0);
+}
+
+// Shared: query terminal pixel size via CSI 14t
+const TERM_QUERY_TIMEOUT = 1000;
+function _queryTermPixelSize({ keepAlive = false } = {}) {
+  if (!process.stdin.isTTY) return Promise.resolve(null);
+  let resolve;
+  const promise = new Promise(r => { resolve = r; });
+  const wasRaw = process.stdin.isRaw;
+  const timeout = setTimeout(() => {
+    process.stdin.removeListener('data', _onData);
+    if (!keepAlive) { process.stdin.setRawMode(wasRaw); process.stdin.pause(); }
+    resolve(null);
+  }, TERM_QUERY_TIMEOUT);
+  if (!keepAlive) { process.stdin.setRawMode(true); process.stdin.resume(); }
+  let _buf = '';
+  const _onData = (data) => {
+    _buf += data.toString();
+    const m = _buf.match(/\x1b\[4;(\d+);(\d+)t/);
+    if (m) {
+      clearTimeout(timeout);
+      process.stdin.removeListener('data', _onData);
+      if (!keepAlive) process.stdin.setRawMode(wasRaw);
+      resolve({ height: parseInt(m[1]), width: parseInt(m[2]) });
+    }
+  };
+  process.stdin.on('data', _onData);
+  process.stdout.write('\x1b[14t');
+  return promise;
+}
+async function _getTermInfo({ keepAlive = false } = {}) {
+  const cols = process.stdout.columns || 80;
+  const rows = process.stdout.rows || 24;
+  const pixelSize = await _queryTermPixelSize({ keepAlive });
+  if (pixelSize) {
+    const cellWidth = Math.floor(pixelSize.width / cols);
+    const cellHeight = Math.floor(pixelSize.height / rows);
+    return { cols, rows, width: cellWidth * cols, height: cellHeight * rows, cellWidth, cellHeight };
+  }
+  return { cols, rows, width: cols * 10, height: rows * 20, cellWidth: 10, cellHeight: 20 };
+}
+
+// cast subcommand — low-latency streaming via scrcpy + ffmpeg
+if (process.argv[2] === 'cast') {
+  const term = await _getTermInfo();
+  console.error(`roidy cast: term ${term.width}x${term.height} cell=${term.cellWidth}x${term.cellHeight}`);
+
+  const { loadConfig } = await import('../lib/config.js');
+  const { loadKeyBindings } = await import('../lib/keys.js');
+  const config = loadConfig();
+  const bindings = loadKeyBindings();
+
+  // Parse cast-specific args
+  const argv = process.argv.slice(3);
+  let host = config.host, port = config.port;
+  let maxFps = 30;
+  let castFormatOverride = null;
+  let appName = null;
+  let useVirtualDisplay = true;
+
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--host' && argv[i + 1]) host = argv[++i];
+    else if (argv[i] === '--port' && argv[i + 1]) port = parseInt(argv[++i]);
+    else if (argv[i] === '--fps' && argv[i + 1]) maxFps = parseInt(argv[++i]);
+    else if (argv[i] === '--format' && argv[i + 1]) { castFormatOverride = argv[++i]; }
+    else if (argv[i] === '--display' && argv[i + 1] === '0') { useVirtualDisplay = false; i++; }
+    else if (!argv[i].startsWith('-') && !appName) appName = argv[i];
+  }
+
+  // Resolve app if specified
+  let castApp = null;
+  if (appName) {
+    const { resolveApp } = await import('../lib/apps.js');
+    const result = resolveApp(appName);
+    if (result.candidates) {
+      console.error(`Multiple matches for "${appName}":`);
+      result.candidates.forEach((c, i) => console.error(`  ${i + 1}) ${c.pkg}`));
+      process.exit(1);
+    }
+    if (result.error) {
+      console.error(`roidy: ${result.error}`);
+      process.exit(1);
+    }
+    castApp = result;
+  }
+
+  const adb = await import('../lib/adb.js');
+  const { sendFrame, resetFrameCache, clearScreen, hideCursor, showCursor, cleanup: cleanupTmp, setDisplaySize } = await import('../lib/kitty.js');
+  const { enableMouse, disableMouse, startInputHandling } = await import('../lib/input.js');
+  const { CastSession } = await import('../lib/cast.js');
+
+  // Connect
+  console.error(`roidy cast: connecting to ${host}:${port}...`);
+  await adb.connect(host, port);
+
+  // Set Android screen to match terminal (same as normal mode)
+  await adb.setScreenSize(term.width, term.height);
+  const { cols, rows, width: screenWidth, height: screenHeight, cellWidth, cellHeight } = term;
+  console.error(`roidy cast: screen ${screenWidth}x${screenHeight} cell=${cellWidth}x${cellHeight}`);
+
+  // Virtual display for app mode
+  let displayId = null;
+  if (castApp && useVirtualDisplay) {
+    displayId = await adb.createVirtualDisplay(screenWidth, screenHeight, 320);
+    adb.setDisplayId(displayId);
+    await adb.launchOnDisplay(castApp.activity, displayId);
+    console.error(`roidy cast: launched ${castApp.pkg} on display ${displayId}`);
+  } else if (castApp) {
+    const { launchApp } = await import('../lib/apps.js');
+    launchApp(castApp.activity);
+  }
+
+  setDisplaySize(cols, rows);
+  hideCursor();
+  clearScreen();
+  enableMouse();
+
+  // Handle stdout errors
+  process.stdout.on('error', (err) => {
+    if (err.code === 'EIO' || err.code === 'EPIPE') process.exit(0);
+  });
+  process.stderr.on('error', () => {});
+
+  // Default PNG (universal). --format jpeg available if needed.
+  const castFormat = castFormatOverride || 'png';
+
+  const cast = new CastSession({
+    displayId,
+    maxFps,
+    format: castFormat,
+    onFrame: (base64Data) => {
+      sendFrame(base64Data);
+    },
+    onError: (err) => {
+      console.error(`roidy cast: ${err.message}`);
+    },
+  });
+
+  try {
+    await cast.start();
+    console.error(`roidy cast: streaming (${maxFps} fps, ${castFormat})`);
+  } catch (err) {
+    console.error(`roidy cast: ${err.message}`);
+    disableMouse();
+    showCursor();
+    process.exit(1);
+  }
+
+  // Input handling — forceCapture is not needed for cast (continuous stream)
+  const inputHandler = startInputHandling(
+    bindings, screenWidth, screenHeight, cellWidth, cellHeight, () => {}
+  );
+
+  // SIGUSR1 for virtual display changes
+  process.on('SIGUSR1', async () => {
+    await new Promise(r => setTimeout(r, 1000));
+    await adb.refreshDisplayId();
+    resetFrameCache();
+  });
+
+  // Shutdown
+  let shuttingDown = false;
+  async function shutdown() {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    const stats = cast.getStats();
+    cast.stop();
+    if (stats) {
+      console.error(`roidy cast: ${stats.frames} frames, ${stats.fps} fps, avg=${stats.avg}ms, median=${stats.median}ms, min=${stats.min}ms, max=${stats.max}ms`);
+    }
+    console.error('roidy cast: shutting down...');
+    if (useVirtualDisplay && adb.getDisplayId() != null) {
+      try { await adb.removeVirtualDisplay(); } catch {}
+    }
+    adb.disconnect();
+    disableMouse();
+    showCursor();
+    try { process.stdin.setRawMode(false); } catch {}
+    clearScreen();
+    cleanupTmp();
+    process.exit(0);
+  }
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+  process.on('SIGHUP', shutdown);
+
+  // Keep alive
+  await new Promise(() => {});
 }
 
 // list subcommand
@@ -303,8 +493,6 @@ function parseArgs() {
   }
   return args;
 }
-
-const TERM_QUERY_TIMEOUT = 1000;
 
 // Query terminal pixel size via CSI 14t
 function queryTermPixelSize({ keepAlive = false } = {}) {
