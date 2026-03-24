@@ -66,7 +66,8 @@ adb shell getprop sys.boot_completed  # "1" means ready
 # roidy setup — timezone, locale, launcher, etc.
 # GApps setup wizard is automatically detected and skipped
 ##
-roidy setup -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
+roidy setup --skip-wizard --disable-play-protect \
+  -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
 # or just: roidy setup (interactive)
 
 ##

@@ -31,6 +31,7 @@ You need an Android environment accessible via adb. Any of the following will wo
 
 For a fully headless setup, we recommend **Redroid** — that's what we use for development and testing.
 Note that Redroid depends on the Linux kernel's binder driver, so it's **Linux only**.
+See [examples/redroid-setup-12](examples/redroid-setup-12/) for our setup notes.
 
 ### Terminal
 
@@ -77,7 +78,7 @@ roidy list               # List installed apps
 roidy search <query>     # Search F-Droid for apps
 roidy install <pkg|apk>  # Install from F-Droid or local APK
 roidy update             # Update all apps via F-Droid
-roidy uninstall <pkg>    # Uninstall an app
+roidy uninstall <pkg>    # Uninstall an app (-y to skip confirmation)
 roidy info               # Show device info
 roidy screenshot [file]  # Save screenshot (alias: ss)
 roidy restart            # Restart system UI (zygote)
@@ -132,11 +133,15 @@ roidy setup
 # Non-interactive with flags
 roidy setup -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
 
+# GApps: skip wizard and disable Play Protect
+roidy setup --skip-wizard --disable-play-protect
+
 # Skip app installation prompts
 roidy setup -t Asia/Tokyo -l ja-JP --no-install
 ```
 
 Setup options:
+- GApps: setup wizard skip, Play Protect disable (auto-detected)
 - Timezone, locale, clock format
 - Screen timeout, screen lock
 - Launcher (KISS Launcher, Discreet Launcher)
@@ -171,10 +176,11 @@ roidy uninstall fennec
 | Ctrl+Q | Quit |
 | Escape | Android Back |
 | Mouse click | Tap |
+| Mouse long press | Long press (hold > 400ms) |
 | Mouse drag | Swipe |
-| Scroll | Scroll |
+| Scroll wheel | Scroll |
 | Arrow keys | D-pad |
-| Text input | Text input |
+| Text input | Text input (typed characters are sent to Android) |
 
 ## Config
 
@@ -202,7 +208,7 @@ sudo modprobe binder_linux
 echo "binder_linux" | sudo tee /etc/modules-load.d/redroid.conf
 
 # Start Redroid container
-docker run -d --name redroid --privileged \
+docker run -d --name redroid --privileged --restart unless-stopped \
   -p 5555:5555 \
   redroid/redroid:12.0.0_64only-latest
 ```
@@ -222,7 +228,7 @@ python3 redroid.py -a 12.0.0_64only -mtg -m -c docker
 Then start with the custom image:
 
 ```bash
-docker run -d --name redroid --privileged \
+docker run -d --name redroid --privileged --restart unless-stopped \
   -p 5555:5555 \
   redroid/redroid:12.0.0_64only_mindthegapps_magisk
 ```

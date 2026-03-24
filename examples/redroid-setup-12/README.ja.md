@@ -66,7 +66,8 @@ adb shell getprop sys.boot_completed  # "1" が出れば準備完了
 # roidy setup — タイムゾーン、ロケール、ランチャー等の設定
 # GApps のセットアップウィザードは自動検出してスキップします
 ##
-roidy setup -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
+roidy setup --skip-wizard --disable-play-protect \
+  -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
 # もしくは: roidy setup (対話モード)
 
 ##
