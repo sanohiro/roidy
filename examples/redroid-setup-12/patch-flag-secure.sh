@@ -111,6 +111,7 @@ zip -q0r "$TMPPATH/services-patched.zip" .
 cd "$MODPATH"
 
 PATCHED_JAR="${TARGET_JAR_PATH}/services.jar"
+rm -f "$PATCHED_JAR"
 zipalign -p -z 4 "$TMPPATH/services-patched.zip" "$PATCHED_JAR"
 chown 0:0 "$PATCHED_JAR"; chmod 644 "$PATCHED_JAR"
 chcon u:object_r:system_file:s0 "$PATCHED_JAR"

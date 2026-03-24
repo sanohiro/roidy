@@ -192,7 +192,7 @@ if (process.argv[2] === 'cast') {
     launchApp(castApp.activity);
   }
 
-  setDisplaySize(cols, rows);
+  setDisplaySize(cols, rows, cellWidth, cellHeight);
   hideCursor();
   clearScreen();
   process.stdout.write('\x1b[3;3Hroidy cast: waiting for stream...');
@@ -230,8 +230,9 @@ if (process.argv[2] === 'cast') {
   }
 
   // Input handling — forceCapture is not needed for cast (continuous stream)
+  const { getImageOffset } = await import('../lib/kitty.js');
   const inputHandler = startInputHandling(
-    bindings, screenWidth, screenHeight, cellWidth, cellHeight, () => {}
+    bindings, screenWidth, screenHeight, cellWidth, cellHeight, () => {}, getImageOffset
   );
 
   // SIGUSR1 for virtual display changes
@@ -500,7 +501,7 @@ if (process.argv[2] === 'setup') {
 }
 
 import * as adb from '../lib/adb.js';
-import { sendFrame, resetFrameCache, clearScreen, hideCursor, showCursor, cleanup as cleanupTmp, transport, setDisplaySize, disableDedup } from '../lib/kitty.js';
+import { sendFrame, resetFrameCache, clearScreen, hideCursor, showCursor, cleanup as cleanupTmp, transport, setDisplaySize, disableDedup, getImageOffset } from '../lib/kitty.js';
 import { enableMouse, disableMouse, startInputHandling } from '../lib/input.js';
 import { loadKeyBindings } from '../lib/keys.js';
 import { loadConfig } from '../lib/config.js';
@@ -622,7 +623,7 @@ async function main() {
   }
   console.error(`roidy: screen ${term.width}x${term.height} cell=${term.cellWidth}x${term.cellHeight} transport=${transport}`);
 
-  setDisplaySize(term.cols, term.rows);
+  setDisplaySize(term.cols, term.rows, term.cellWidth, term.cellHeight);
   hideCursor();
   clearScreen();
   process.stdout.write('\x1b[3;3Hroidy: connecting...');
@@ -692,7 +693,7 @@ async function main() {
 
   // Start input handling
   const inputHandler = startInputHandling(
-    bindings, term.width, term.height, term.cellWidth, term.cellHeight, forceCapture
+    bindings, term.width, term.height, term.cellWidth, term.cellHeight, forceCapture, getImageOffset
   );
 
   // Shutdown
@@ -729,7 +730,7 @@ async function main() {
   async function handleResize() {
     try {
       const t = await getTermInfo({ keepAlive: true });
-      setDisplaySize(t.cols, t.rows);
+      setDisplaySize(t.cols, t.rows, t.cellWidth, t.cellHeight);
       clearScreen();
       resetFrameCache();
       disableDedup(3000);
