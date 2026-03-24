@@ -167,7 +167,7 @@ if (process.argv[2] === 'cast') {
   }
 
   const adb = await import('../lib/adb.js');
-  const { sendFrame, resetFrameCache, clearScreen, hideCursor, showCursor, cleanup: cleanupTmp, setDisplaySize } = await import('../lib/kitty.js');
+  const { sendFrame, resetFrameCache, clearScreen, hideCursor, showCursor, cleanup: cleanupTmp, setDisplaySize, getImageOffset } = await import('../lib/kitty.js');
   const { enableMouse, disableMouse, startInputHandling } = await import('../lib/input.js');
   const { CastSession } = await import('../lib/cast.js');
 
@@ -207,6 +207,9 @@ if (process.argv[2] === 'cast') {
   // Default PNG (universal). --format jpeg available if needed.
   const castFormat = castFormatOverride || 'png';
 
+  let castRotated = false;
+  let restarting = false;
+
   const cast = new CastSession({
     displayId,
     maxFps,
@@ -215,7 +218,7 @@ if (process.argv[2] === 'cast') {
       sendFrame(base64Data);
     },
     onError: (err) => {
-      console.error(`roidy cast: ${err.message}`);
+      if (!restarting) console.error(`roidy cast: ${err.message}`);
     },
   });
 
@@ -229,8 +232,27 @@ if (process.argv[2] === 'cast') {
     process.exit(1);
   }
 
+  // Poll for display rotation changes and restart pipeline
+  if (displayId != null) {
+    const rotationPoll = setInterval(async () => {
+      if (restarting) return;
+      try {
+        const rotated = await adb.isDisplayRotated(displayId);
+        if (rotated !== castRotated) {
+          castRotated = rotated;
+          restarting = true;
+          console.error(`roidy cast: rotation changed (rotated=${rotated}), restarting pipeline...`);
+          await cast.restart();
+          restarting = false;
+          console.error(`roidy cast: pipeline restarted`);
+        }
+      } catch {}
+    }, 2000);
+    // Clean up on exit
+    process.on('exit', () => clearInterval(rotationPoll));
+  }
+
   // Input handling — forceCapture is not needed for cast (continuous stream)
-  const { getImageOffset } = await import('../lib/kitty.js');
   const inputHandler = startInputHandling(
     bindings, screenWidth, screenHeight, cellWidth, cellHeight, () => {}, getImageOffset
   );
