@@ -373,11 +373,22 @@ if (process.argv[2] === 'install') {
 
 // uninstall subcommand
 if (process.argv[2] === 'uninstall' || process.argv[2] === 'remove') {
-  const pkg = process.argv[3];
-  if (!pkg) { console.error('Usage: roidy uninstall <package>'); process.exit(1); }
+  const args = process.argv.slice(3);
+  const force = args.includes('-y') || args.includes('--yes');
+  const pkg = args.find(a => !a.startsWith('-'));
+  if (!pkg) { console.error('Usage: roidy uninstall [-y] <package>'); process.exit(1); }
   const { resolveApp } = await import('../lib/apps.js');
   const result = resolveApp(pkg);
   const target = result.error ? pkg : result.pkg;
+  if (!force) {
+    const { createInterface } = await import('node:readline');
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const answer = await new Promise(r => rl.question(`Uninstall ${target}? (y/N): `, a => { rl.close(); r(a); }));
+    if (answer.toLowerCase() !== 'y') {
+      console.log('Cancelled.');
+      process.exit(0);
+    }
+  }
   const { adbExec } = await import('../lib/adb.js');
   try {
     const out = adbExec(`uninstall "${target}"`, { timeout: 30000 });
