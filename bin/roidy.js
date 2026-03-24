@@ -13,6 +13,20 @@ if (process.argv[2] === '--version' || process.argv[2] === '-v') {
   process.exit(0);
 }
 
+// Set device ID early so all subcommands use -s for adb CLI calls
+{
+  const { loadConfig } = await import('../lib/config.js');
+  const { setDeviceId } = await import('../lib/adb.js');
+  const _cfg = loadConfig();
+  const _argv = process.argv.slice(2);
+  let _host = _cfg.host, _port = _cfg.port;
+  for (let i = 0; i < _argv.length; i++) {
+    if (_argv[i] === '--host' && _argv[i + 1]) _host = _argv[++i];
+    else if (_argv[i] === '--port' && _argv[i + 1]) _port = parseInt(_argv[++i]);
+  }
+  setDeviceId(`${_host}:${_port}`);
+}
+
 // --help / -h
 if (process.argv[2] === '--help' || process.argv[2] === '-h') {
   console.log(`roidy - Terminal-based adb frontend
@@ -48,6 +62,8 @@ Setup options:
   --screen-timeout <s> Screen timeout in seconds (0 = never)
   --screen-lock <on|off> Screen lock
   --launcher <name>    Launcher (e.g. kiss)
+  --skip-wizard        Skip GApps setup wizard
+  --disable-play-protect  Disable Play Protect (for F-Droid)
   --app-store          Install F-Droid
   --no-install         Skip all app installation prompts
 
@@ -270,13 +286,13 @@ if (process.argv[2] === 'list') {
 
 // info subcommand
 if (process.argv[2] === 'info') {
-  const { execSync } = await import('node:child_process');
+  const { adbExec } = await import('../lib/adb.js');
   const prop = (k) => {
-    try { return execSync(`adb shell getprop ${k}`, { encoding: 'utf8', timeout: 5000 }).trim(); }
+    try { return adbExec(`shell getprop ${k}`, { timeout: 5000 }); }
     catch { return '?'; }
   };
   const sh = (cmd) => {
-    try { return execSync(`adb shell "${cmd}"`, { encoding: 'utf8', timeout: 5000 }).trim(); }
+    try { return adbExec(`shell "${cmd}"`, { timeout: 5000 }); }
     catch { return '?'; }
   };
   console.log(`Android:    ${prop('ro.build.version.release')} (API ${prop('ro.build.version.sdk')})`);
@@ -291,12 +307,13 @@ if (process.argv[2] === 'info') {
 
 // restart subcommand
 if (process.argv[2] === 'restart') {
+  const { adbExec } = await import('../lib/adb.js');
   const { execSync } = await import('node:child_process');
   console.log('Restarting system UI...');
-  execSync('adb shell "su 0 setprop ctl.restart zygote"', { encoding: 'utf8', timeout: 5000 });
+  adbExec('shell "su 0 setprop ctl.restart zygote"', { timeout: 5000 });
   for (let i = 0; i < 30; i++) {
     try {
-      const result = execSync('adb shell getprop sys.boot_completed', { encoding: 'utf8', timeout: 5000 }).trim();
+      const result = adbExec('shell getprop sys.boot_completed', { timeout: 5000 });
       if (result === '1') break;
     } catch {}
     execSync('sleep 2');
@@ -307,9 +324,10 @@ if (process.argv[2] === 'restart') {
 
 // screenshot subcommand
 if (process.argv[2] === 'screenshot' || process.argv[2] === 'ss') {
+  const { adbExec } = await import('../lib/adb.js');
   const { execSync } = await import('node:child_process');
   const dest = process.argv[3] || `screenshot-${Date.now()}.png`;
-  const data = execSync('adb shell screencap -p', { maxBuffer: 50 * 1024 * 1024, timeout: 10000 });
+  const data = execSync(`adb -s ${(await import('../lib/adb.js')).getDeviceId()} shell screencap -p`, { maxBuffer: 50 * 1024 * 1024, timeout: 10000 });
   const pngSig = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
   const start = data.indexOf(pngSig);
   if (start < 0) { console.error('Failed to capture screenshot'); process.exit(1); }
@@ -338,12 +356,17 @@ if (process.argv[2] === 'install') {
   if (!target) { console.error('Usage: roidy install <package|apk>'); process.exit(1); }
   if (target.endsWith('.apk')) {
     // Local APK
-    const { execSync } = await import('node:child_process');
-    const result = execSync(`adb install "${target}"`, { encoding: 'utf8', timeout: 60000 }).trim();
+    const { adbExec } = await import('../lib/adb.js');
+    const result = adbExec(`install "${target}"`, { timeout: 60000 });
     console.log(result);
   } else {
     const { install } = await import('../lib/fdroid.js');
-    await install(target);
+    try {
+      await install(target);
+    } catch (err) {
+      console.error(err.message);
+      process.exit(1);
+    }
   }
   process.exit(0);
 }
@@ -355,9 +378,9 @@ if (process.argv[2] === 'uninstall' || process.argv[2] === 'remove') {
   const { resolveApp } = await import('../lib/apps.js');
   const result = resolveApp(pkg);
   const target = result.error ? pkg : result.pkg;
-  const { execSync } = await import('node:child_process');
+  const { adbExec } = await import('../lib/adb.js');
   try {
-    const out = execSync(`adb uninstall "${target}"`, { encoding: 'utf8', timeout: 30000 }).trim();
+    const out = adbExec(`uninstall "${target}"`, { timeout: 30000 });
     console.log(out);
   } catch (err) {
     console.error(`Failed to uninstall ${target}: ${err.message}`);
@@ -456,6 +479,8 @@ if (process.argv[2] === 'setup') {
     else if (argv[i] === '--clock' && argv[i + 1]) opts.clock = argv[++i];
     else if (argv[i] === '--screen-timeout' && argv[i + 1]) opts.screenTimeout = argv[++i];
     else if (argv[i] === '--screen-lock' && argv[i + 1]) opts.screenLock = argv[++i];
+    else if (argv[i] === '--skip-wizard') opts.skipWizard = true;
+    else if (argv[i] === '--disable-play-protect') opts.disablePlayProtect = true;
     else if (argv[i] === '--app-store') opts.appStore = true;
     else if (argv[i] === '--no-install') opts.noInstall = true;
   }
