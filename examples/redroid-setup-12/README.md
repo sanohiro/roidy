@@ -61,19 +61,9 @@ docker run -d --name redroid --privileged --restart unless-stopped \
 adb connect localhost:5555
 adb wait-for-device
 adb shell getprop sys.boot_completed  # "1" means ready
-
-##
-# roidy setup — timezone, locale, launcher, etc.
-# GApps setup wizard is automatically detected and skipped
-##
-roidy setup --skip-wizard --disable-play-protect \
-  -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
-# or just: roidy setup (interactive)
-
-##
-# Done. You can now use roidy.
-##
 ```
+After boot, proceed with FLAG_SECURE patch or roidy setup below.
+
 
 ## FLAG_SECURE Patch (Optional)
 
@@ -96,4 +86,23 @@ docker stop redroid && docker rm redroid
 docker run -d --name redroid --privileged --restart unless-stopped \
   -p 5555:5555 \
   redroid/redroid:12.0.0_64only_mindthegapps_magisk_noflag
+```
+After patching, proceed with roidy setup below.
+
+
+## roidy setup
+```bash
+##
+# roidy setup — timezone, locale, launcher, etc.
+# GApps setup wizard is automatically detected and skipped
+##
+roidy setup --skip-wizard --disable-play-protect \
+  -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
+
+# or just: roidy setup (interactive)
+# Use interactive mode if you want to install a launcher or F-Droid
+
+##
+# Done. You can now use roidy.
+##
 ```

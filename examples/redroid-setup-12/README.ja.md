@@ -61,19 +61,9 @@ docker run -d --name redroid --privileged --restart unless-stopped \
 adb connect localhost:5555
 adb wait-for-device
 adb shell getprop sys.boot_completed  # "1" が出れば準備完了
-
-##
-# roidy setup — タイムゾーン、ロケール、ランチャー等の設定
-# GApps のセットアップウィザードは自動検出してスキップします
-##
-roidy setup --skip-wizard --disable-play-protect \
-  -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
-# もしくは: roidy setup (対話モード)
-
-##
-# おしまい。roidy が使えます。
-##
 ```
+上記完了後にFLAG_SECUREかroidyセットアップを行ってください
+
 
 ## FLAG_SECURE パッチ (任意)
 
@@ -98,4 +88,23 @@ docker stop redroid && docker rm redroid
 docker run -d --name redroid --privileged --restart unless-stopped \
   -p 5555:5555 \
   redroid/redroid:12.0.0_64only_mindthegapps_magisk_noflag
+```
+上記完了後にroidyセットアップを行ってください
+
+
+## roidyセットアップ
+```bash
+##
+# roidy setup — タイムゾーン、ロケール、ランチャー等の設定
+# GApps のセットアップウィザードは自動検出してスキップします
+##
+roidy setup --skip-wizard --disable-play-protect \
+  -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off
+
+# もしくは: roidy setup (対話モード)
+# ランチャーやF-Droidを入れたい人は対話モードで
+
+##
+# おしまい。roidy が使えます。
+##
 ```
