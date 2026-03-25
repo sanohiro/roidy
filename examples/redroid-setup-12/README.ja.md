@@ -1,5 +1,7 @@
 # Redroid セットアップ例 (Android 12)
 
+[English](README.md)
+
 僕らがやったRedroidのセットアップ手順です。メンテナンスはしません。
 バージョン変わったりしたら各自で調整してください。
 
@@ -97,6 +99,7 @@ docker run -d --name redroid --privileged --restart unless-stopped \
 ##
 # roidy setup — タイムゾーン、ロケール、ランチャー等の設定
 # GApps のセットアップウィザードは自動検出してスキップします
+# タイムゾーンとロケールは日本用です — 各自の地域に合わせて変更してください
 ##
 roidy setup --skip-wizard --disable-play-protect \
   -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off

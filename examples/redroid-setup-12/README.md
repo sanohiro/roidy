@@ -1,5 +1,7 @@
 # Redroid Setup Example (Android 12)
 
+[Japanese](README.ja.md)
+
 This is how we set up our Redroid environment. Not a maintained guide — just our notes.
 If versions change or things break, adjust accordingly.
 
@@ -95,6 +97,7 @@ After patching, proceed with roidy setup below.
 ##
 # roidy setup — timezone, locale, launcher, etc.
 # GApps setup wizard is automatically detected and skipped
+# Timezone and locale below are for Japan — adjust to your region
 ##
 roidy setup --skip-wizard --disable-play-protect \
   -t Asia/Tokyo -l ja-JP --clock 24 --screen-timeout 0 --screen-lock off

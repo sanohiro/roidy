@@ -49,6 +49,7 @@ Redroid は Linux カーネルの binder ドライバに依存するため、**L
 
 [Kitty グラフィックスプロトコル](https://sw.kovidgoyal.net/kitty/graphics-protocol/) 対応のターミナル：
 
+- [bcon](https://github.com/sanohiro/bcon)
 - [Kitty](https://sw.kovidgoyal.net/kitty/)
 - [Ghostty](https://ghostty.org/)
 - [WezTerm](https://wezfurlong.org/wezterm/)
@@ -268,7 +269,7 @@ Google Play に依存しないアプリは F-Droid で十分です — `roidy in
 
 > **注意:** 一部のアプリは `FLAG_SECURE` を設定しており、スクリーンキャプチャが真っ黒になります。これらのアプリが必要な場合はパッチで回避できます — 詳細は [examples/redroid-setup-12](examples/redroid-setup-12/) を参照してください。
 
-セットアップ手順の詳細は [examples/redroid-setup-12](examples/redroid-setup-12/) を参照してください。
+僕らの環境構築手順を [examples/redroid-setup-12](examples/redroid-setup-12/) に置いています — 参考にしてください。
 
 ## ライセンス
 

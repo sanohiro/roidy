@@ -13,15 +13,17 @@ Terminal-based adb frontend. Android version of casty.
 ## Structure
 
 - `bin/roidy.js` — entrypoint (CLI, subcommands, main loop)
-- `lib/adb.js` — adb connection, screencap, input, virtual display management
-- `lib/input.js` — stdin → mouse/keyboard → adb
-- `lib/kitty.js` — Kitty GP (ported from casty)
+- `lib/adb.js` — adb connection, screencap, input, virtual display management, `adbExec` helper
+- `lib/input.js` — stdin → mouse/keyboard → adb (coordinate scaling for rotation)
+- `lib/kitty.js` — Kitty GP (ported from casty, with aspect ratio fitting and center alignment)
 - `lib/keys.js` — key bindings
 - `lib/config.js` — config loader
-- `lib/setup.js` — interactive device setup
+- `lib/setup.js` — interactive device setup (GApps detection, Play Protect, timezone validation)
 - `lib/apps.js` — app resolver (aliases, package lookup)
-- `lib/fdroid.js` — F-Droid API (search, install, update)
-- `lib/cast.js` — scrcpy-server + ffmpeg streaming
+- `lib/fdroid.js` — F-Droid API (search, install, update, package name resolution)
+- `lib/cast.js` — scrcpy-server + ffmpeg streaming (rotation restart)
+- `docs/` — setup guide, screenshots
+- `examples/redroid-setup-12/` — Redroid setup notes and FLAG_SECURE patch script
 
 ## Commands
 

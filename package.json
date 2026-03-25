@@ -1,7 +1,7 @@
 {
   "name": "@sanohiro/roidy",
   "version": "0.1.0",
-  "description": "Run a real Android device inside your terminal using Redroid + adb + Kitty graphics protocol",
+  "description": "Terminal-based adb frontend — view and control Android devices using Kitty graphics protocol",
   "main": "bin/roidy.js",
   "bin": {
     "roidy": "bin/roidy.js"
@@ -9,6 +9,7 @@
   "files": [
     "bin/",
     "lib/",
+    "README.md",
     "LICENSE"
   ],
   "scripts": {
@@ -16,11 +17,14 @@
   },
   "keywords": [
     "android",
-    "redroid",
     "adb",
-    "tty",
     "terminal",
-    "kitty"
+    "kitty",
+    "scrcpy",
+    "screen-mirror",
+    "virtual-display",
+    "redroid",
+    "tty"
   ],
   "repository": {
     "type": "git",

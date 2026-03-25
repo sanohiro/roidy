@@ -1,6 +1,6 @@
 # roidy
 
-[日本語版 / Japanese](README.ja.md)
+[Japanese](README.ja.md)
 
 Terminal-based adb frontend — view and control Android devices from your terminal using Kitty graphics protocol.
 
@@ -49,6 +49,7 @@ See [examples/redroid-setup-12](examples/redroid-setup-12/) for our setup notes.
 
 A terminal that supports the [Kitty graphics protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/):
 
+- [bcon](https://github.com/sanohiro/bcon)
 - [Kitty](https://sw.kovidgoyal.net/kitty/)
 - [Ghostty](https://ghostty.org/)
 - [WezTerm](https://wezfurlong.org/wezterm/)
@@ -268,7 +269,7 @@ For apps without Google Play dependencies, F-Droid is sufficient — install app
 
 > **Note:** Some apps set `FLAG_SECURE` which makes screen capture return black frames. If you need these apps, a patch is available — see [examples/redroid-setup-12](examples/redroid-setup-12/) for details.
 
-For a more detailed walkthrough of our setup process, see [examples/redroid-setup-12](examples/redroid-setup-12/).
+See [examples/redroid-setup-12](examples/redroid-setup-12/) for how we set up our environment — use as a reference.
 
 ## License
 
