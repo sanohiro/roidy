@@ -31,6 +31,9 @@
     "url": "git+https://github.com/sanohiro/roidy.git"
   },
   "homepage": "https://github.com/sanohiro/roidy",
+  "bugs": {
+    "url": "https://github.com/sanohiro/roidy/issues"
+  },
   "author": "Hironobu Sano",
   "license": "MIT",
   "type": "module",

@@ -7,12 +7,12 @@
 各アプリは独自の仮想ディスプレイで動作するため、複数のターミナルウィンドウで同時に複数のアプリを使えます。
 
 <p align="center">
-  <img src="docs/screenshot-home.png" width="480" alt="ターミナルで Android ホーム画面をミラー表示" /><br />
+  <img src="https://raw.githubusercontent.com/sanohiro/roidy/main/docs/screenshot-home.png" width="480" alt="ターミナルで Android ホーム画面をミラー表示" /><br />
   <em>Android ホーム画面をミラー表示 — Linux コンソール（X11/Wayland なし）で動作</em>
 </p>
 
 <p align="center">
-  <img src="docs/screenshot-kindle.png" width="480" alt="roidy start で Kindle を仮想ディスプレイ起動" /><br />
+  <img src="https://raw.githubusercontent.com/sanohiro/roidy/main/docs/screenshot-kindle.png" width="480" alt="roidy start で Kindle を仮想ディスプレイ起動" /><br />
   <em>アプリを仮想ディスプレイで起動 — <code>roidy start kindle</code></em>
 </p>
 

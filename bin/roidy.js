@@ -54,6 +54,11 @@ Options:
   --host <host>        adb host (default: localhost)
   --port <port>        adb port (default: 5555)
   --interval <ms>      Screenshot interval in ms (default: 1000)
+  --display 0          Use main display instead of virtual display
+
+Cast options:
+  --fps <n>            Max fps (default: 30)
+  --format <fmt>       Output format: png (default) or jpeg (bcon only)
 
 Setup options:
   -t, --timezone <tz>  Timezone (e.g. Asia/Tokyo)
@@ -76,8 +81,9 @@ Key bindings (default):
   Arrow keys       Android D-pad
   Text input       Android text input
 
-Config: ~/.roidy/config.json
-Keys:   ~/.roidy/keys.json
+Config:  ~/.roidy/config.json
+Keys:    ~/.roidy/keys.json
+Aliases: ~/.roidy/aliases.json
 
 https://github.com/sanohiro/roidy`);
   process.exit(0);
