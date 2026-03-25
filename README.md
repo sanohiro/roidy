@@ -4,6 +4,16 @@ Terminal-based adb frontend — view and control Android devices from your termi
 
 Each app runs in its own virtual display, so you can use multiple apps simultaneously in separate terminal windows.
 
+<p align="center">
+  <img src="docs/screenshot-home.png" width="480" alt="Mirror Android home screen in terminal" /><br />
+  <em>Mirror Android home screen — running on Linux console (no X11/Wayland)</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-kindle.png" width="480" alt="Kindle running in a virtual display via roidy start" /><br />
+  <em>Launch apps in their own virtual display — <code>roidy start kindle</code></em>
+</p>
+
 ## Prerequisites
 
 ### Node.js

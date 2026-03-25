@@ -123,6 +123,7 @@ async function _getTermInfo({ keepAlive = false } = {}) {
   return { cols, rows, width: cols * 10, height: rows * 20, cellWidth: 10, cellHeight: 20 };
 }
 
+
 // cast subcommand — low-latency streaming via scrcpy + ffmpeg
 if (process.argv[2] === 'cast') {
   const term = await _getTermInfo();
@@ -139,7 +140,6 @@ if (process.argv[2] === 'cast') {
   let castFormatOverride = null;
   let appName = null;
   let useVirtualDisplay = true;
-
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--host' && argv[i + 1]) host = argv[++i];
     else if (argv[i] === '--port' && argv[i + 1]) port = parseInt(argv[++i]);
@@ -231,6 +231,7 @@ if (process.argv[2] === 'cast') {
     showCursor();
     process.exit(1);
   }
+
 
   // Poll for display rotation changes and restart pipeline
   if (displayId != null) {
