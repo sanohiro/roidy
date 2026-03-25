@@ -226,6 +226,36 @@ Customize settings in `~/.roidy/config.json`:
 
 Key bindings can be customized in `~/.roidy/keys.json`.
 
+App aliases can be added in `~/.roidy/aliases.json`:
+
+```json
+{
+  "twitter": "com.twitter.android",
+  "slack": "com.Slack"
+}
+```
+
+User aliases override built-in ones. Use with `roidy start twitter`, `roidy install twitter`, etc.
+
+Built-in aliases:
+
+| Alias | Package |
+|-------|---------|
+| kindle | com.amazon.kindle |
+| play | com.android.vending |
+| chrome | com.android.chrome |
+| settings | com.android.settings |
+| calendar | com.android.calendar |
+| contacts | com.android.contacts |
+| clock | com.android.deskclock |
+| gallery | com.android.gallery3d |
+| files | com.android.documentsui |
+| fdroid | org.fdroid.fdroid |
+| magisk | com.topjohnwu.magisk |
+| gboard | com.google.android.inputmethod.latin |
+| firefox | org.mozilla.firefox |
+| fennec | org.mozilla.fennec_fdroid |
+
 ## Redroid setup (Linux)
 
 roidy works with any Android environment accessible via adb — physical devices, emulators, or containers. We use **Redroid** because we run on Linux without X11/Wayland, and Redroid is the only option that works in a fully headless (no GUI) environment.

@@ -1,5 +1,7 @@
 # roidy setup — Configuration Guide
 
+[Japanese](setup.ja.md)
+
 `roidy setup` configures an Android device for use with roidy. It's not required — roidy works without it — but it makes the experience smoother.
 
 All prompts default to no change (just press Enter to skip), so it's safe to run multiple times.

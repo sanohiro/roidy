@@ -226,6 +226,36 @@ roidy uninstall fennec
 
 キーバインドは `~/.roidy/keys.json` でカスタマイズできます。
 
+アプリエイリアスは `~/.roidy/aliases.json` で追加できます：
+
+```json
+{
+  "twitter": "com.twitter.android",
+  "slack": "com.Slack"
+}
+```
+
+ユーザーエイリアスはビルトインを上書きします。`roidy start twitter`、`roidy install twitter` 等で使えます。
+
+ビルトインエイリアス：
+
+| エイリアス | パッケージ |
+|------------|------------|
+| kindle | com.amazon.kindle |
+| play | com.android.vending |
+| chrome | com.android.chrome |
+| settings | com.android.settings |
+| calendar | com.android.calendar |
+| contacts | com.android.contacts |
+| clock | com.android.deskclock |
+| gallery | com.android.gallery3d |
+| files | com.android.documentsui |
+| fdroid | org.fdroid.fdroid |
+| magisk | com.topjohnwu.magisk |
+| gboard | com.google.android.inputmethod.latin |
+| firefox | org.mozilla.firefox |
+| fennec | org.mozilla.fennec_fdroid |
+
 ## Redroid セットアップ (Linux)
 
 roidy は adb でアクセスできる Android 環境であれば何でも動きます — 物理デバイス、エミュレータ、コンテナ問いません。僕らは X11/Wayland なしの Linux 環境で使っているため、完全にヘッドレス（GUI なし）で動作する唯一の選択肢である **Redroid** を使っています。
