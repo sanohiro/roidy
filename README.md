@@ -51,6 +51,21 @@ A terminal that supports the [Kitty graphics protocol](https://sw.kovidgoyal.net
 - [Ghostty](https://ghostty.org/)
 - [WezTerm](https://wezfurlong.org/wezterm/)
 
+### ffmpeg (optional — for `roidy cast`)
+
+Required only for `roidy cast` (low-latency streaming via scrcpy).
+
+```bash
+# macOS
+brew install ffmpeg
+
+# Ubuntu / Debian
+sudo apt install ffmpeg
+
+# Windows (winget)
+winget install Gyan.FFmpeg
+```
+
 ## Install
 
 ```bash
@@ -128,16 +143,16 @@ roidy cast kindle
 # Set max fps
 roidy cast --fps 15
 
-# Force JPEG output (default: PNG)
+# Force JPEG output (bcon only — requires file transfer mode)
 roidy cast --format jpeg
 ```
 
 ### roidy setup
 
-Interactive setup for a fresh Android device. All prompts default to no change, so it's safe to run repeatedly.
+Interactive setup for Android devices. Not required to use roidy, but recommended — configures timezone, locale, and other settings that make the device easier to use from a terminal.
 
 ```bash
-# Interactive mode
+# Interactive mode — walks you through each setting
 roidy setup
 
 # Non-interactive with flags
@@ -156,6 +171,8 @@ Setup options:
 - Screen timeout, screen lock
 - Launcher (KISS Launcher, Discreet Launcher)
 - F-Droid (open-source app store)
+
+See [docs/setup.md](docs/setup.md) for details on each setting.
 
 ### roidy search / install / update
 
