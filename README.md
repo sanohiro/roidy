@@ -1,5 +1,7 @@
 # roidy
 
+[日本語版 / Japanese](README.ja.md)
+
 Terminal-based adb frontend — view and control Android devices from your terminal using Kitty graphics protocol.
 
 Each app runs in its own virtual display, so you can use multiple apps simultaneously in separate terminal windows.
@@ -225,6 +227,8 @@ Key bindings can be customized in `~/.roidy/keys.json`.
 
 ## Redroid setup (Linux)
 
+roidy works with any Android environment accessible via adb — physical devices, emulators, or containers. We use **Redroid** because we run on Linux without X11/Wayland, and Redroid is the only option that works in a fully headless (no GUI) environment.
+
 Redroid requires the binder kernel module:
 
 ```bash
@@ -261,6 +265,10 @@ docker run -d --name redroid --privileged --restart unless-stopped \
 ```
 
 For apps without Google Play dependencies, F-Droid is sufficient — install apps via `roidy install` without any screen interaction.
+
+> **Note:** Some apps set `FLAG_SECURE` which makes screen capture return black frames. If you need these apps, a patch is available — see [examples/redroid-setup-12](examples/redroid-setup-12/) for details.
+
+For a more detailed walkthrough of our setup process, see [examples/redroid-setup-12](examples/redroid-setup-12/).
 
 ## License
 

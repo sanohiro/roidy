@@ -1,5 +1,7 @@
 # roidy
 
+[English](README.md)
+
 ターミナルベースの adb フロントエンド — Kitty グラフィックスプロトコルを使って、ターミナルから Android デバイスを表示・操作します。
 
 各アプリは独自の仮想ディスプレイで動作するため、複数のターミナルウィンドウで同時に複数のアプリを使えます。
@@ -172,7 +174,7 @@ roidy setup -t Asia/Tokyo -l ja-JP --no-install
 - ランチャー (KISS Launcher, Discreet Launcher)
 - F-Droid (オープンソースアプリストア)
 
-各設定の詳細は [docs/setup.md](docs/setup.md) を参照してください。
+各設定の詳細は [docs/setup.ja.md](docs/setup.ja.md) を参照してください。
 
 ### roidy search / install / update
 
@@ -225,6 +227,8 @@ roidy uninstall fennec
 
 ## Redroid セットアップ (Linux)
 
+roidy は adb でアクセスできる Android 環境であれば何でも動きます — 物理デバイス、エミュレータ、コンテナ問いません。僕らは X11/Wayland なしの Linux 環境で使っているため、完全にヘッドレス（GUI なし）で動作する唯一の選択肢である **Redroid** を使っています。
+
 Redroid には binder カーネルモジュールが必要です：
 
 ```bash
@@ -261,6 +265,10 @@ docker run -d --name redroid --privileged --restart unless-stopped \
 ```
 
 Google Play に依存しないアプリは F-Droid で十分です — `roidy install` で画面操作なしにインストールできます。
+
+> **注意:** 一部のアプリは `FLAG_SECURE` を設定しており、スクリーンキャプチャが真っ黒になります。これらのアプリが必要な場合はパッチで回避できます — 詳細は [examples/redroid-setup-12](examples/redroid-setup-12/) を参照してください。
+
+セットアップ手順の詳細は [examples/redroid-setup-12](examples/redroid-setup-12/) を参照してください。
 
 ## ライセンス
 
